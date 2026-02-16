@@ -5,9 +5,23 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 from typing import List
 
-from database import SessionLocal, engine, Base
 from models import Usuario
-from schemas import UsuarioCreate, UsuarioOut
+from database import SessionLocal, engine, Base
+from schemas import UsuarioCreate, UsuarioOut, LoginRequest, Token
+from jose import jwt
+from datetime import datetime, timedelta
+
+# Configuración JWT
+SECRET_KEY = "UTEC-CLOUD-COMPUTING" # En producción usar variable de entorno
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+def create_access_token(data: dict):
+    to_encode = data.copy()
+    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
 
 Base.metadata.create_all(bind=engine)
 
@@ -29,6 +43,19 @@ def get_db():
         yield db
     finally:
         db.close()
+
+@app.post("/login", response_model=Token)
+def login(request: LoginRequest, db: Session = Depends(get_db)):
+    usuario = db.query(Usuario).filter(Usuario.email == request.email).first()
+    
+    if not usuario:
+        raise HTTPException(status_code=401, detail="Credenciales inválidas")
+    
+    if usuario.clave != request.clave:
+        raise HTTPException(status_code=401, detail="Credenciales inválidas")
+    
+    access_token = create_access_token(data={"sub": usuario.email})
+    return {"access_token": access_token, "token_type": "bearer"}
 
 @app.post("/usuarios", response_model=UsuarioOut, status_code=201)
 def crear_usuario(u: UsuarioCreate, db: Session = Depends(get_db)):

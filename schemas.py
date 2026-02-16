@@ -15,3 +15,11 @@ class UsuarioOut(BaseModel):
 
     class Config:
         orm_mode = True
+
+class LoginRequest(BaseModel):
+    email: str
+    clave: str
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
