@@ -1,5 +1,20 @@
 ## BackEnd - Instrucciones
 
+### crear un ambiente
+python -m venv server
+
+### activar el ambiente
+source server/Scripts/activate
+
+### instalar dependencias con pip
+pip install fastapi uvicorn sqlalchemy pydantic
+
+### iniciar el servidor
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+# desativar ambiente
+deactivate
+
 ### Instalar dependencias:
 pip install fastapi uvicorn sqlalchemy pydantic
 
