@@ -101,3 +101,11 @@ def crear_cuenta_bancaria(cuenta: CuentaBancariaCreate, db: Session = Depends(ge
     db.commit()
     db.refresh(nueva_cuenta)
     return nueva_cuenta
+
+@app.get("/bank_accounts", response_model=List[CuentaBancariaSchema])
+def listar_cuentas_bancarias(user_id: int, db: Session = Depends(get_db)):
+    cuentas = db.query(CuentaBancaria)\
+        .filter(CuentaBancaria.user_id == user_id)\
+        .order_by(CuentaBancaria.id.desc())\
+        .all()
+    return cuentas
