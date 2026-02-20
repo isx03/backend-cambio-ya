@@ -5,9 +5,9 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 from typing import List
 
-from models import Usuario
+from models import Usuario, CuentaBancaria
 from database import SessionLocal, engine, Base
-from schemas import UsuarioCreate, UsuarioOut, LoginRequest, Token
+from schemas import UsuarioCreate, UsuarioOut, LoginRequest, Token, CuentaBancariaCreate, CuentaBancaria as CuentaBancariaSchema
 from jose import jwt
 from datetime import datetime, timedelta
 
@@ -87,3 +87,17 @@ def crear_usuario(u: UsuarioCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(nuevo_usuario)
     return nuevo_usuario
+
+@app.post("/bank_accounts", response_model=CuentaBancariaSchema, status_code=201)
+def crear_cuenta_bancaria(cuenta: CuentaBancariaCreate, db: Session = Depends(get_db)):
+    nueva_cuenta = CuentaBancaria(
+        user_id=cuenta.user_id,
+        bank_name=cuenta.bank_name,
+        account_number=cuenta.account_number,
+        currency=cuenta.currency,
+        account_type=cuenta.account_type
+    )
+    db.add(nueva_cuenta)
+    db.commit()
+    db.refresh(nueva_cuenta)
+    return nueva_cuenta

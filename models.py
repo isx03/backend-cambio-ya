@@ -12,3 +12,13 @@ class Usuario(Base):
     dni = Column(String(8))
     email = Column(String(50))
     clave = Column(String)
+
+class CuentaBancaria(Base):
+    __tablename__ = "cuentas_bancarias"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, nullable=False)
+    bank_name = Column(String(50))
+    account_number = Column(String(20))
+    currency = Column(String(3))
+    account_type = Column(String(20))

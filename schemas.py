@@ -26,3 +26,16 @@ class Token(BaseModel):
     id: int
     nombre_completo: str
     email: str
+
+class CuentaBancariaCreate(BaseModel):
+    user_id: int
+    bank_name: str
+    account_number: str
+    currency: str
+    account_type: str
+
+class CuentaBancaria(CuentaBancariaCreate):
+    id: int
+
+    class Config:
+        orm_mode = True
