@@ -3,7 +3,7 @@ from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 from models import Usuario, CuentaBancaria
 from database import SessionLocal, engine, Base
@@ -103,9 +103,13 @@ def crear_cuenta_bancaria(cuenta: CuentaBancariaCreate, db: Session = Depends(ge
     return nueva_cuenta
 
 @app.get("/bank_accounts", response_model=List[CuentaBancariaSchema])
-def listar_cuentas_bancarias(user_id: int, db: Session = Depends(get_db)):
-    cuentas = db.query(CuentaBancaria)\
-        .filter(CuentaBancaria.user_id == user_id)\
-        .order_by(CuentaBancaria.id.desc())\
-        .all()
+def listar_cuentas_bancarias(user_id: int, currency: Optional[str] = None, db: Session = Depends(get_db)):
+    query = db.query(CuentaBancaria).filter(CuentaBancaria.user_id == user_id)
+    
+    if currency and currency not in ["PEN", "USD"]:
+        raise HTTPException(status_code=400, detail="Currency must be PEN or USD")
+    elif currency and currency in ["PEN", "USD"]:
+        query = query.filter(CuentaBancaria.currency == currency)
+
+    cuentas = query.order_by(CuentaBancaria.id.desc()).all()
     return cuentas
