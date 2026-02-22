@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
+from datetime import datetime
 
 class UsuarioCreate(BaseModel):
     nombre_completo: str
@@ -36,6 +37,24 @@ class CuentaBancariaCreate(BaseModel):
 
 class CuentaBancaria(CuentaBancariaCreate):
     id: int
+
+    class Config:
+        orm_mode = True
+
+class SimulacionCambioCreate(BaseModel):
+    user_id: int
+    monto_envio: float
+    moneda_envio: str
+    monto_recibo: float
+    moneda_recibo: str
+    tipo_cambio: float
+    cuenta_origen_id: Optional[int] = None
+    cuenta_destino_id: Optional[int] = None
+    numero_operacion: Optional[str] = None
+
+class SimulacionCambioOut(SimulacionCambioCreate):
+    id: int
+    fecha_simulacion: datetime
 
     class Config:
         orm_mode = True

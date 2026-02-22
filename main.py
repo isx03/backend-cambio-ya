@@ -5,9 +5,9 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 from typing import List, Optional
 
-from models import Usuario, CuentaBancaria
+from models import Usuario, CuentaBancaria, SimulacionCambio
 from database import SessionLocal, engine, Base
-from schemas import UsuarioCreate, UsuarioOut, LoginRequest, Token, CuentaBancariaCreate, CuentaBancaria as CuentaBancariaSchema
+from schemas import UsuarioCreate, UsuarioOut, LoginRequest, Token, CuentaBancariaCreate, CuentaBancaria as CuentaBancariaSchema, SimulacionCambioCreate, SimulacionCambioOut
 from jose import jwt
 from datetime import datetime, timedelta
 
@@ -113,3 +113,21 @@ def listar_cuentas_bancarias(user_id: int, currency: Optional[str] = None, db: S
 
     cuentas = query.order_by(CuentaBancaria.id.desc()).all()
     return cuentas
+
+@app.post("/operaciones-cambio", response_model=SimulacionCambioOut, status_code=201)
+def guardar_operacion_cambio(simulacion: SimulacionCambioCreate, db: Session = Depends(get_db)):
+    nueva_simulacion = SimulacionCambio(
+        user_id=simulacion.user_id,
+        monto_envio=simulacion.monto_envio,
+        moneda_envio=simulacion.moneda_envio,
+        monto_recibo=simulacion.monto_recibo,
+        moneda_recibo=simulacion.moneda_recibo,
+        tipo_cambio=simulacion.tipo_cambio,
+        cuenta_origen_id=simulacion.cuenta_origen_id,
+        cuenta_destino_id=simulacion.cuenta_destino_id,
+        numero_operacion=simulacion.numero_operacion
+    )
+    db.add(nueva_simulacion)
+    db.commit()
+    db.refresh(nueva_simulacion)
+    return nueva_simulacion
