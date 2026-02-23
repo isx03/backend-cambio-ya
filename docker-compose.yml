@@ -1,0 +1,25 @@
+services:
+  api:
+    build:
+      context: ./api-cambio-ya
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./api-cambio-ya:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+
+  web:
+    build:
+      context: ./web-cambio-ya
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./web-cambio-ya:/app
+      - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    depends_on:
+      - api
