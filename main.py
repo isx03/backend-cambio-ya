@@ -25,7 +25,7 @@ def create_access_token(data: dict):
 
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="API Pendientes")
+app = FastAPI(title="API Cambio Ya")
 
 origins = ['*'] # Permite que el Api Rest se consuma desde cualquier origen
 
